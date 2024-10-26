@@ -1,9 +1,11 @@
+import hashlib
 from pony.orm import db_session
+from pony.orm import select
 from .conex import Usuario, Paciente
 
 @db_session
 def verificar_credenciales(username, password):
-    user = Usuario.get(username=username, password=password)
+    user = Usuario.get(nombre=username, contraseña=password)
     return user is not None
 
 @db_session
@@ -21,6 +23,14 @@ def test_connection():
         return "Conexión exitosa"
     except Exception as e:
         return f"Error al conectar a la base de datos: {e}"
+@db_session
+def registrar_usuario(nombre, contraseña):
+    # Verifica si ya existe un usuario con ese nombre
+    if select(u for u in Usuario if u.nombre == nombre).first():
+        return False  # Usuario ya existe
+    Usuario(nombre=nombre, contraseña=contraseña)
+    return True
 
     
+
 
